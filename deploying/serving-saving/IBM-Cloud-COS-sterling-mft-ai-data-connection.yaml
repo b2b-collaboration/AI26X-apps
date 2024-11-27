@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    opendatahub.io/dashboard: "true"
+    opendatahub.io/managed: "true"
+  annotations:
+    opendatahub.io/connection-type: s3
+    opendatahub.io/display-name: internal-minio
+  name: internal-minio
+type: Opaque
+stringData:
+  AWS_ACCESS_KEY_ID: f06c2d20675f47d49e252b85064d8476
+  AWS_DEFAULT_REGION: us-south
+  AWS_S3_ENDPOINT: https://control.cloud-object-storage.cloud.ibm.com/v2/endpoints
+  AWS_S3_BUCKET: e7e5c9b5c77e50127665760463889a198f4641901785fbfb
+  AWS_SECRET_ACCESS_KEY: minio123
+
+  #{
+  #  "apikey": "QrzywJh4UE1xgQ7QDjpdbLb2Qz5aluWgNg3DGUNv_Oj7",
+  #  "cos_hmac_keys": {
+  #      "access_key_id": "f06c2d20675f47d49e252b85064d8476",
+  #      "secret_access_key": "e7e5c9b5c77e50127665760463889a198f4641901785fbfb"
+  #  },
+  #  "endpoints": "https://control.cloud-object-storage.cloud.ibm.com/v2/endpoints",
+  #  "iam_apikey_description": "Auto-generated for key crn:v1:bluemix:public:cloud-object-storage:global:a/3087e8b94e6ce7eb8d7fd0dafe1a396e:83146318-c883-487b-aba3-2ce1850dc4b2:resource-key:f06c2d20-675f-47d4-9e25-2b85064d8476",
+  #  "iam_apikey_id": "ApiKey-6d004f2a-4f67-4307-8c75-5a4ea4242864",
+  #  "iam_apikey_name": "sterling-mft-ai",
+  #  "iam_role_crn": "crn:v1:bluemix:public:iam::::serviceRole:Manager",
+  #  "iam_serviceid_crn": "crn:v1:bluemix:public:iam-identity::a/3087e8b94e6ce7eb8d7fd0dafe1a396e::serviceid:ServiceId-8ac1dec3-9a9a-441b-b17a-109050df25b2",
+  #  "resource_instance_id": "crn:v1:bluemix:public:cloud-object-storage:global:a/3087e8b94e6ce7eb8d7fd0dafe1a396e:83146318-c883-487b-aba3-2ce1850dc4b2::"
+#}
+
+{
+    "apikey": "0Ljj3sdPi5d8sKZfg-c6ayEU4Y5wn0Hm8acvoTkinRIt",
+    "endpoints": "https://control.cloud-object-storage.cloud.ibm.com/v2/endpoints",
+    "iam_apikey_description": "Auto-generated for key crn:v1:bluemix:public:cloud-object-storage:global:a/3087e8b94e6ce7eb8d7fd0dafe1a396e:edfd233c-6687-4b3c-b03d-d3ae77096962:resource-key:0fb4d97e-59fb-43f9-9e6a-63396dc1c48d",
+    "iam_apikey_id": "ApiKey-7c71f0e7-a682-4d8f-ab91-24607c205b09",
+    "iam_apikey_name": "sde-mft-sterling-ai",
+    "iam_role_crn": "crn:v1:bluemix:public:cloud-object-storage::::serviceRole:ObjectWriter",
+    "iam_serviceid_crn": "crn:v1:bluemix:public:iam-identity::a/3087e8b94e6ce7eb8d7fd0dafe1a396e::serviceid:ServiceId-75ec63e5-098a-4f21-b7f0-72df325e95c9",
+    "resource_instance_id": "crn:v1:bluemix:public:cloud-object-storage:global:a/3087e8b94e6ce7eb8d7fd0dafe1a396e:edfd233c-6687-4b3c-b03d-d3ae77096962::"
+}
+
+
+curl -X POST "https://iam.cloud.ibm.com/identity/token" \
+     -H "Content-Type: application/x-www-form-urlencoded" \
+     -d "apikey=<your_api_key>" \
+     -d "grant_type=urn:ibm:params:oauth:grant-type:apikey" \
+     -d "response_type=cloud_iam" | jq -r '.access_token'
+
+
+
+curl -X PUT \
+  -H "Authorization: Bearer $(curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "apikey=0Ljj3sdPi5d8sKZfg-c6ayEU4Y5wn0Hm8acvoTkinRIt&response_type=cloud_iam&grant_type=urn:ibm:params:oauth:grant-type:apikey" "https://iam.cloud.ibm.com/identity/token")" \
+  -H "Content-Type: text/plain" \
+  -T mftinput.csv \
+  "https://control.cloud-object-storage.cloud.ibm.com/v2/endpoints/sde-mft-sterling-ai/mftinput.csv"
+
+PUBLIC
+curl -X PUT \
+  -H "Authorization: Bearer $(curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "apikey=0Ljj3sdPi5d8sKZfg-c6ayEU4Y5wn0Hm8acvoTkinRIt&response_type=cloud_iam&grant_type=urn:ibm:params:oauth:grant-type:apikey" "https://iam.cloud.ibm.com/identity/token")" \
+  -H "Content-Type: text/plain" \
+  -T mftinput.csv \
+  "https://s3.us-south.cloud-object-storage.appdomain.cloud/sde-mft-sterling-ai/mftinput.csv"
+
+
+PRIVATE
+  curl -X PUT \
+  -H "Authorization: Bearer $(curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "apikey=0Ljj3sdPi5d8sKZfg-c6ayEU4Y5wn0Hm8acvoTkinRIt&response_type=cloud_iam&grant_type=urn:ibm:params:oauth:grant-type:apikey" "https://iam.cloud.ibm.com/identity/token")" \
+  -H "Content-Type: text/plain" \
+  -T mftinput.csv \
+  "https://s3.private.us-south.cloud-object-storage.appdomain.cloud/sde-mft-sterling-ai/mftinput.csv"
+
+
+
+  
